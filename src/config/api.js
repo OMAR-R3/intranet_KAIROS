@@ -16,7 +16,9 @@ export const endpoints = {
     internUsers: `${API_URL}/api/intern_users`,
     // Logs
     logs: `${API_URL}/api/logs`,
-    refresh: `${API_URL}/api/auth/refresh`
+    refresh: `${API_URL}/api/auth/refresh`,
+    forgotPassword: `${API_URL}/api/auth/forgot-password`,
+    resetPassword: `${API_URL}/api/auth/reset-password`
 };
 
 export const fetchConfig = (token) => ({

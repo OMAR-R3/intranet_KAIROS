@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { endpoints } from "@/config/api";
+import Link from "next/link";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -75,6 +76,9 @@ export default function LoginPage() {
                     <button style={styles.btn} type="submit" disabled={loading}>
                         {loading ? "Iniciando sesión..." : "Iniciar sesión"}
                     </button>
+                    <Link href="/forgot-password" style={styles.forgotLink}>
+                        ¿Olvidaste tu contraseña?
+                    </Link>
                 </form>
             </div>
         </div>
@@ -90,5 +94,6 @@ const styles = {
     label: { display: "block", fontSize: "0.9rem", fontWeight: 500, marginBottom: "0.3rem" },
     input: { width: "100%", padding: "0.6rem 0.8rem", border: "1px solid #ddd", borderRadius: 6, fontSize: "0.95rem", boxSizing: "border-box" },
     btn: { width: "100%", padding: "0.75rem", background: "#1a56db", color: "white", border: "none", borderRadius: 6, fontSize: "1rem", fontWeight: 600, cursor: "pointer", marginTop: "0.5rem" },
-    error: { background: "#fee2e2", color: "#991b1b", padding: "0.75rem", borderRadius: 6, marginBottom: "1rem", fontSize: "0.9rem" }
+    error: { background: "#fee2e2", color: "#991b1b", padding: "0.75rem", borderRadius: 6, marginBottom: "1rem", fontSize: "0.9rem" },
+    forgotLink: { display: "block", textAlign: "center", marginTop: "1rem", color: "#1a56db", fontSize: "0.85rem", textDecoration: "none" },
 };

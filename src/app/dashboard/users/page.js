@@ -12,7 +12,7 @@ export default function UsersPage() {
     const [filtroRol, setFiltroRol] = useState("");
     const [busqueda, setBusqueda] = useState("");
     const [modal, setModal] = useState(null);
-    const [form, setForm] = useState({ nombre: "", apellido_paterno: "", apellido_materno: "", rol: "recepcionista", password: "" });
+    const [form, setForm] = useState({ nombre: "", apellido_paterno: "", apellido_materno: "", rol: "recepcionista", password: "", correo: "" });
     const [editId, setEditId] = useState(null);
     const [confirmDelete, setConfirmDelete] = useState(null);
     const [msg, setMsg] = useState(null);
@@ -59,7 +59,7 @@ export default function UsersPage() {
     };
 
     const abrirEditar = (u) => {
-        setForm({ nombre: u.nombre, apellido_paterno: u.apellido_paterno, apellido_materno: u.apellido_materno || "", rol: u.rol, password: "" });
+        setForm({ nombre: u.nombre, apellido_paterno: u.apellido_paterno, apellido_materno: u.apellido_materno || "", rol: u.rol, password: "", correo: u.correo || "" });
         setEditId(u.id);
         setModal("form");
     };
@@ -236,6 +236,16 @@ export default function UsersPage() {
                         <div style={styles.formGroup}>
                             <label style={styles.label}>Apellido materno</label>
                             <input style={styles.input} value={form.apellido_materno} onChange={e => setForm({ ...form, apellido_materno: e.target.value })} />
+                        </div>
+                        <div style={styles.formGroup}>
+                            <label style={styles.label}>Correo electrónico *</label>
+                            <input
+                                style={styles.input}
+                                type="email"
+                                value={form.correo}
+                                onChange={e => setForm({ ...form, correo: e.target.value })}
+                                placeholder="usuario@institucion.edu.mx"
+                            />
                         </div>
                         <div style={styles.formGroup}>
                             <label style={styles.label}>Rol *</label>
