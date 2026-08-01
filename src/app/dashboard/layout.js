@@ -89,7 +89,7 @@ export default function DashboardLayout({ children }) {
                 setTiempoRestante(`${segundos}s`);
             }
 
-            setAvisoExpiracion(segundosRestantes <= 600);
+            setAvisoExpiracion(segundosRestantes <= 600 /*99999*/);
         };
         // Ejecutar inmediatamente
         actualizarTiempo();
