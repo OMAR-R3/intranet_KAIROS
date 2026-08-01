@@ -1,24 +1,19 @@
-export const API_URL = "";
+export const API_URL = "https://kairos-api.duckdns.org";
 
 export const endpoints = {
-    // Auth
-    login: `/api/auth/login`,
-    logout: `/api/auth/logout`,
-    me: `/api/auth/me`,
-    // Visitas
-    visits: `/api/visits`,
-    visitStatus: (id) => `/api/visits/${id}/status`,
-    validateQR: `/api/visits/validate`,
-    registerInternal: `/api/visits/register-internal`,
-    // Departamentos
-    department: `/api/department`,
-    // Usuarios internos
-    internUsers: `/api/intern_users`,
-    // Logs
-    logs: `/api/logs`,
-    refresh: `/api/auth/refresh`,
-    forgotPassword: `/api/auth/forgot-password`,
-    resetPassword: `/api/auth/reset-password`
+    login: `${API_URL}/api/auth/login`,
+    logout: `${API_URL}/api/auth/logout`,
+    me: `${API_URL}/api/auth/me`,
+    visits: `${API_URL}/api/visits`,
+    visitStatus: (id) => `${API_URL}/api/visits/${id}/status`,
+    validateQR: `${API_URL}/api/visits/validate`,
+    registerInternal: `${API_URL}/api/visits/register-internal`,
+    department: `${API_URL}/api/department`,
+    internUsers: `${API_URL}/api/intern_users`,
+    logs: `${API_URL}/api/logs`,
+    refresh: `${API_URL}/api/auth/refresh`,
+    forgotPassword: `${API_URL}/api/auth/forgot-password`,
+    resetPassword: `${API_URL}/api/auth/reset-password`
 };
 
 export const fetchConfig = (token) => ({
