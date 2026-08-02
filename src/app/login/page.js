@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { endpoints } from "@/config/api";
@@ -15,7 +14,6 @@ export default function LoginPage() {
         e.preventDefault();
         setLoading(true);
         setError("");
-
         try {
             const res = await fetch(endpoints.login, {
                 method: "POST",
@@ -26,12 +24,10 @@ export default function LoginPage() {
                 credentials: "include",
                 body: JSON.stringify(form)
             });
-
             const json = await res.json();
-
             if (res.ok) {
                 sessionStorage.setItem("usuario", JSON.stringify(json.usuario));
-                sessionStorage.setItem("token", json.token);  // ← guardar token
+                sessionStorage.setItem("token", json.token);
                 router.push("/dashboard");
             } else {
                 setError(json.error || "Credenciales incorrectas");
@@ -44,17 +40,17 @@ export default function LoginPage() {
     };
 
     return (
-        <div style={styles.container}>
+        <main style={styles.container}>
             <div style={styles.card}>
                 <h1 style={styles.title}>🔐 Intranet</h1>
                 <p style={styles.subtitle}>Control de Visitas</p>
-
-                {error && <div style={styles.error}>{error}</div>}
-
+                {error && <div style={styles.error} role="alert">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div style={styles.formGroup}>
-                        <label style={styles.label}>Usuario</label>
+                        <label style={styles.label} htmlFor="nombre_usuario">Usuario</label>
                         <input
+                            id="nombre_usuario"
+                            name="nombre_usuario"
                             style={styles.input}
                             type="text"
                             value={form.nombre_usuario}
@@ -64,8 +60,10 @@ export default function LoginPage() {
                         />
                     </div>
                     <div style={styles.formGroup}>
-                        <label style={styles.label}>Contraseña</label>
+                        <label style={styles.label} htmlFor="password">Contraseña</label>
                         <input
+                            id="password"
+                            name="password"
                             style={styles.input}
                             type="password"
                             value={form.password}
@@ -81,7 +79,7 @@ export default function LoginPage() {
                     </Link>
                 </form>
             </div>
-        </div>
+        </main>
     );
 }
 
@@ -89,7 +87,7 @@ const styles = {
     container: { minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f0f4ff" },
     card: { background: "white", borderRadius: 10, padding: "2.5rem", width: "100%", maxWidth: 380, boxShadow: "0 2px 12px rgba(0,0,0,0.1)" },
     title: { textAlign: "center", fontSize: "1.5rem", marginBottom: "0.25rem", color: "#1a56db" },
-    subtitle: { textAlign: "center", color: "#888", marginBottom: "1.5rem", fontSize: "0.9rem" },
+    subtitle: { textAlign: "center", color: "#595959", marginBottom: "1.5rem", fontSize: "0.9rem" },
     formGroup: { marginBottom: "1rem" },
     label: { display: "block", fontSize: "0.9rem", fontWeight: 500, marginBottom: "0.3rem" },
     input: { width: "100%", padding: "0.6rem 0.8rem", border: "1px solid #ddd", borderRadius: 6, fontSize: "0.95rem", boxSizing: "border-box" },
