@@ -110,7 +110,7 @@ export default function ValidatePage() {
 
     const formatFecha = (iso) => new Date(iso).toLocaleDateString("es-MX", {
         weekday: "long", year: "numeric", month: "long", day: "numeric",
-        timeZone: "America/Mexico_City"
+        timeZone: "UTC"
     });
 
     return (

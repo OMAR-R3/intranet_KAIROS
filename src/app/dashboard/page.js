@@ -141,7 +141,7 @@ export default function DashboardPage() {
                                             <small style={{ color: "#888" }}>{v.Visitantes?.correo}</small>
                                         </td>
                                         <td style={styles.td}>{v.Departamentos?.nombre}</td>
-                                        <td style={styles.td}>{new Date(v.fecha).toLocaleDateString("es-MX")}</td>
+                                        <td style={styles.td}>{new Date(v.fecha).toLocaleDateString("es-MX", { timeZone: "UTC" })}</td>
                                         <td style={styles.td}>{v.hora_inicio}</td>
                                         <td style={styles.td}>{v.motivo}</td>
                                         <td style={styles.td}>
@@ -203,7 +203,7 @@ export default function DashboardPage() {
                         <p style={styles.modalInfo}>
                             <strong>{modal.visita.Visitantes?.nombre} {modal.visita.Visitantes?.apellido_paterno}</strong>
                             <br />
-                            {modal.visita.Departamentos?.nombre} — {new Date(modal.visita.fecha).toLocaleDateString("es-MX")}
+                            {modal.visita.Departamentos?.nombre} — {new Date(modal.visita.fecha).toLocaleDateString("es-MX", { timeZone: "UTC" })}
                         </p>
                         {modal.accion === "cancelada" && (
                             <div style={{ marginBottom: "1rem" }}>
