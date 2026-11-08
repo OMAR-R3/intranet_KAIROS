@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { endpoints } from "@/config/api";
 import { fetchApi } from "@/lib/fetchApi";
 
-const ESTADOS = ["todos", "pendiente", "aprobada", "cancelada", "finalizada"];
+const ESTADOS = ["todos", "pendiente", "aprobada", "cancelada", "rechazada", "finalizada"];
 const LIMIT = 10;
 
 const estadoColor = {
-    pendiente:  { bg: "#fef3c7", color: "#92400e" },
-    aprobada:   { bg: "#d1fae5", color: "#065f46" },
-    cancelada:  { bg: "#fee2e2", color: "#991b1b" },
+    pendiente: { bg: "#fef3c7", color: "#92400e" },
+    aprobada: { bg: "#d1fae5", color: "#065f46" },
+    cancelada: { bg: "#fee2e2", color: "#991b1b" },
+    rechazada: { bg: "#ffedd5", color: "#9a3412" },
     finalizada: { bg: "#f3f4f6", color: "#374151" },
 };
 
@@ -60,8 +61,8 @@ export default function DashboardPage() {
 
     const cambiarEstado = async () => {
         if (!modal) return;
-        if (modal.accion === "cancelada" && !motivo.trim()) {
-            setMsg({ text: "El motivo es requerido para cancelar", type: "error" });
+        if (["cancelada", "rechazada"].includes(modal.accion) && !motivo.trim()) {
+            setMsg({ text: `El motivo es requerido para ${modal.accion === "cancelada" ? "cancelar" : "rechazar"}`, type: "error" });
             return;
         }
         setProcesando(true);
@@ -156,6 +157,11 @@ export default function DashboardPage() {
                                                         ✅
                                                     </button>
                                                 )}
+                                                {v.estado === "pendiente" && canAprobar && (
+                                                    <button style={styles.btnRechazar} title="Rechazar" onClick={() => { setModal({ visita: v, accion: "rechazada" }); setMotivo(""); }}>
+                                                        🚫
+                                                    </button>
+                                                )}
                                                 {["pendiente", "aprobada"].includes(v.estado) && (
                                                     <button style={styles.btnCancelar} onClick={() => { setModal({ visita: v, accion: "cancelada" }); setMotivo(""); }}>
                                                         ❌
@@ -196,6 +202,7 @@ export default function DashboardPage() {
                 <div style={styles.overlay}>
                     <div style={styles.modal}>
                         <h3 style={styles.modalTitle}>
+                            {modal.accion === "rechazada" && "🚫 Rechazar visita"}
                             {modal.accion === "aprobada" && "✅ Aprobar visita"}
                             {modal.accion === "cancelada" && "❌ Cancelar visita"}
                             {modal.accion === "finalizada" && "🏁 Finalizar visita"}
@@ -205,9 +212,9 @@ export default function DashboardPage() {
                             <br />
                             {modal.visita.Departamentos?.nombre} — {new Date(modal.visita.fecha).toLocaleDateString("es-MX", { timeZone: "UTC" })}
                         </p>
-                        {modal.accion === "cancelada" && (
+                        {["cancelada", "rechazada"].includes(modal.accion) && (
                             <div style={{ marginBottom: "1rem" }}>
-                                <label style={styles.label}>Motivo de cancelación *</label>
+                                <label style={styles.label}>Motivo de {modal.accion === "cancelada" ? "cancelación" : "rechazo"} *</label>
                                 <textarea
                                     style={styles.textarea}
                                     value={motivo}
@@ -254,6 +261,7 @@ const styles = {
     acciones: { display: "flex", gap: "0.3rem" },
     btnAprobar: { padding: "0.3rem 0.6rem", background: "#d1fae5", border: "none", borderRadius: 4, cursor: "pointer", fontSize: "1rem" },
     btnCancelar: { padding: "0.3rem 0.6rem", background: "#fee2e2", border: "none", borderRadius: 4, cursor: "pointer", fontSize: "1rem" },
+    btnRechazar: { padding: "0.3rem 0.6rem", background: "#ffedd5", border: "none", borderRadius: 4, cursor: "pointer", fontSize: "1rem" },
     btnFinalizar: { padding: "0.3rem 0.6rem", background: "#f3f4f6", border: "none", borderRadius: 4, cursor: "pointer", fontSize: "1rem" },
     pagination: { display: "flex", justifyContent: "center", alignItems: "center", gap: "1rem", marginTop: "1rem" },
     pageBtn: { padding: "0.5rem 1rem", border: "1px solid #ddd", borderRadius: 6, background: "white", cursor: "pointer", fontSize: "0.85rem" },
