@@ -5,6 +5,53 @@ import { endpoints } from "@/config/api";
 import { fetchApi } from "@/lib/fetchApi";
 import jsQR from "jsqr";
 
+const STATUS_CONFIG = {
+    valid: {
+        icon: "✅",
+        title: "Acceso válido",
+        subtitle: "La visita está aprobada. Puede ingresar.",
+        bg: "#d1fae5",
+        color: "#065f46",
+    },
+    expired: {
+        icon: "⏰",
+        title: "QR expirado",
+        subtitle: "Este código QR ha caducado. Solicite uno nuevo.",
+        bg: "#fef3c7",
+        color: "#92400e",
+    },
+    used: {
+        icon: "🔁",
+        title: "QR ya utilizado",
+        subtitle: "Este código QR ya fue escaneado previamente. No puede usarse de nuevo.",
+        bg: "#e0e7ff",
+        color: "#3730a3",
+    },
+    invalid: {
+        icon: "❌",
+        title: "QR inválido",
+        subtitle: "El código no corresponde a ninguna visita registrada.",
+        bg: "#fee2e2",
+        color: "#991b1b",
+    },
+    network_error: {
+        icon: "📡",
+        title: "Error de conexión",
+        subtitle: "No se pudo contactar al servidor. Verifique su conexión e intente de nuevo.",
+        bg: "#f3f4f6",
+        color: "#374151",
+    },
+};
+
+function resolveStatus(json, resOk) {
+    if (json?.status && STATUS_CONFIG[json.status]) return json.status;
+    if (resOk) return "valid";
+    const msg = (json?.error || "").toLowerCase();
+    if (msg.includes("expirad") || msg.includes("expired")) return "expired";
+    if (msg.includes("utilizad") || msg.includes("used") || msg.includes("already")) return "used";
+    return "invalid";
+}
+
 export default function ValidatePage() {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
@@ -55,14 +102,15 @@ export default function ValidatePage() {
                 body: JSON.stringify({ token })
             });
             const json = await res.json();
+            const status = resolveStatus(json, res.ok);
 
-            if (res.ok) {
-                setResultado({ ok: true, data: json.data });
-            } else {
-                setResultado({ ok: false, msg: json.error });
-            }
+            setResultado({
+                status,
+                data: json.data || null,
+                msg: json.error || null,
+            });
         } catch {
-            setResultado({ ok: false, msg: "Error de conexión" });
+            setResultado({ status: "network_error", data: null, msg: null });
         } finally {
             setValidando(false);
         }
@@ -185,54 +233,59 @@ export default function ValidatePage() {
             ) : (
                 // Resultado
                 <div style={styles.card}>
-                    {resultado.ok ? (
-                        <>
-                            <div style={styles.resultHeader}>
-                                <span style={styles.resultIconOk}>✅</span>
-                                <div>
-                                    <h2 style={{ color: "#065f46", margin: 0 }}>Acceso válido</h2>
-                                    <p style={{ color: "#6b7280", margin: 0, fontSize: "0.9rem" }}>La visita está aprobada</p>
-                                </div>
+                    <ResultBanner status={resultado.status} />
+
+                    {resultado.status === "valid" && resultado.data && (
+                        <div style={styles.resultGrid}>
+                            <div style={styles.resultItem}>
+                                <span style={styles.resultLabel}>Visitante</span>
+                                <span style={styles.resultValue}>
+                                    {resultado.data.Visitantes?.nombre} — {resultado.data.Visitantes?.correo}
+                                </span>
                             </div>
-                            <div style={styles.resultGrid}>
-                                <div style={styles.resultItem}>
-                                    <span style={styles.resultLabel}>Visitante</span>
-                                    <span style={styles.resultValue}>
-                                        {resultado.data.Visitantes?.nombre} — {resultado.data.Visitantes?.correo}
-                                    </span>
-                                </div>
-                                <div style={styles.resultItem}>
-                                    <span style={styles.resultLabel}>Departamento</span>
-                                    <span style={styles.resultValue}>{resultado.data.Departamentos?.nombre}</span>
-                                </div>
-                                <div style={styles.resultItem}>
-                                    <span style={styles.resultLabel}>Fecha</span>
-                                    <span style={styles.resultValue}>{formatFecha(resultado.data.fecha)}</span>
-                                </div>
-                                <div style={styles.resultItem}>
-                                    <span style={styles.resultLabel}>Hora</span>
-                                    <span style={styles.resultValue}>{resultado.data.hora_inicio}</span>
-                                </div>
-                                <div style={styles.resultItem}>
-                                    <span style={styles.resultLabel}>Motivo</span>
-                                    <span style={styles.resultValue}>{resultado.data.motivo}</span>
-                                </div>
+                            <div style={styles.resultItem}>
+                                <span style={styles.resultLabel}>Departamento</span>
+                                <span style={styles.resultValue}>{resultado.data.Departamentos?.nombre}</span>
                             </div>
-                        </>
-                    ) : (
-                        <div style={styles.resultError}>
-                            <span style={styles.resultIconError}>❌</span>
-                            <div>
-                                <h2 style={{ color: "#991b1b", margin: 0 }}>Acceso no válido</h2>
-                                <p style={{ color: "#6b7280", margin: "0.25rem 0 0", fontSize: "0.9rem" }}>{resultado.msg}</p>
+                            <div style={styles.resultItem}>
+                                <span style={styles.resultLabel}>Fecha</span>
+                                <span style={styles.resultValue}>{formatFecha(resultado.data.fecha)}</span>
+                            </div>
+                            <div style={styles.resultItem}>
+                                <span style={styles.resultLabel}>Hora</span>
+                                <span style={styles.resultValue}>{resultado.data.hora_inicio}</span>
+                            </div>
+                            <div style={styles.resultItem}>
+                                <span style={styles.resultLabel}>Motivo</span>
+                                <span style={styles.resultValue}>{resultado.data.motivo}</span>
                             </div>
                         </div>
                     )}
+
+                    {resultado.msg && resultado.status !== "valid" && (
+                        <p style={styles.serverMsg}>{resultado.msg}</p>
+                    )}
+
                     <button style={{ ...styles.btnSecondary, marginTop: "1.5rem" }} onClick={resetear}>
                         🔄 Escanear otro
                     </button>
                 </div>
             )}
+        </div>
+    );
+}
+
+function ResultBanner({ status }) {
+    const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.invalid;
+    return (
+        <div style={{ ...styles.resultBanner, background: cfg.bg }}>
+            <span style={styles.resultIcon}>{cfg.icon}</span>
+            <div>
+                <h2 style={{ color: cfg.color, margin: 0 }}>{cfg.title}</h2>
+                <p style={{ color: "#6b7280", margin: "0.25rem 0 0", fontSize: "0.9rem" }}>
+                    {cfg.subtitle}
+                </p>
+            </div>
         </div>
     );
 }
@@ -254,10 +307,9 @@ const styles = {
     formGroup: { marginBottom: "1rem" },
     label: { display: "block", fontSize: "0.85rem", fontWeight: 500, marginBottom: "0.3rem" },
     input: { width: "100%", padding: "0.6rem 0.8rem", border: "1px solid #ddd", borderRadius: 6, fontSize: "0.9rem", boxSizing: "border-box" },
-    resultHeader: { display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem", padding: "1rem", background: "#d1fae5", borderRadius: 8 },
-    resultIconOk: { fontSize: "2.5rem" },
-    resultIconError: { fontSize: "2.5rem" },
-    resultError: { display: "flex", alignItems: "center", gap: "1rem", padding: "1rem", background: "#fee2e2", borderRadius: 8 },
+    resultBanner: { display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem", padding: "1rem", borderRadius: 8 },
+    resultIcon: { fontSize: "2.5rem", flexShrink: 0 },
+    serverMsg: { fontSize: "0.85rem", color: "#6b7280", fontStyle: "italic", margin: "0 0 0.5rem" },
     resultGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" },
     resultItem: { display: "flex", flexDirection: "column", gap: "0.2rem" },
     resultLabel: { fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", color: "#888", letterSpacing: "0.05em" },
